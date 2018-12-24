@@ -1,0 +1,22 @@
+container:
+  image: python:3.7
+
+pep8_task:
+  timeout_in: 5m
+  script:
+    - pip install git+https://gitlab.com/pycqa/flake8#egg=flake8
+    - flake8 --ignore="E501" ./
+
+do_release_task:
+  timeout_in: 5m
+  only_if: $CIRRUS_BRANCH == 'master'
+  environment:
+    PYPI_USER: ENCRYPTED[bd758e554cdc8c3a9f9534434eb6070e7409467eab34776bb88f5e1fe7168c3aa29c08c6495dc6cd7d979d3596af02ca]
+    PYPI_PASSWORD: ENCRYPTED[7837240e717b62039e4f54e655bb069e07ff6dda3f4f866a2ce76b84495fd5d3adf2c7852351245c50657d88e355c6d4]
+  depends_on:
+    - pep8
+  script:
+    - pip install twine
+    - ./genpypirc
+    - python setup.py sdist
+    - twine upload dist/*
