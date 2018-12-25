@@ -7,6 +7,14 @@ pep8_task:
     - pip install git+https://gitlab.com/pycqa/flake8#egg=flake8
     - flake8 --ignore="E501" ./
 
+test_task:
+  timeout_in: 5m
+  depends_on:
+    - pep8
+  script:
+    - pip install -r test.requirements.txt -U
+    - pytest
+
 do_release_task:
   timeout_in: 5m
   only_if: $CIRRUS_BRANCH == 'master'
@@ -15,6 +23,7 @@ do_release_task:
     PYPI_PASSWORD: ENCRYPTED[7837240e717b62039e4f54e655bb069e07ff6dda3f4f866a2ce76b84495fd5d3adf2c7852351245c50657d88e355c6d4]
   depends_on:
     - pep8
+    - test
   script:
     - pip install twine
     - ./genpypirc
