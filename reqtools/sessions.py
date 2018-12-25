@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import json
 import logging
 from urllib.parse import urljoin
@@ -13,27 +14,41 @@ logger = logging.getLogger(__name__)
 
 class RemoteApiSession(Session):
 
-    def __init__(self, base_url: str = None, prefix: str = None):
+    def __init__(self, base_url: str, *, prefix: str = None):
         super(RemoteApiSession, self).__init__()
 
         self._base_url = base_url
         self._prefix = prefix
 
     def __repr__(self):
-        if self._prefix:
-            url = urljoin(self._base_url, self._prefix)
-        else:
-            url = self._base_url
+        return f'{self.__class__.__name__}({self.url})'
 
-        return f'{self.__class__.__name__}({url})'
+    @property
+    def base_url(self):
+        return self._base_url
+
+    @property
+    def prefix(self):
+        return self._prefix
+
+    @property
+    def url(self):
+        if self.prefix:
+            return urljoin(self._base_url, self._prefix)
+
+        return self._base_url
 
     def _build_url(self, url_path: str):
         if self._prefix:
-            url_path = os.path.join(self._prefix, url_path)
+            slash_in_the_end = url_path.endswith('/')
+            url_path = os.path.join(self._prefix, re.sub('^/|/$', '', url_path))
+
+            if slash_in_the_end:
+                url_path += '/'
 
         return urljoin(self._base_url, url_path)
 
-    def request(self, method, url_path, **kwargs):
+    def request(self, method: str, url_path: str, **kwargs):
         url = self._build_url(url_path)
         logger.info(f'Performing "{method}" request to "{url}"')
 

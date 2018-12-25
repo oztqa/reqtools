@@ -27,7 +27,7 @@ setup(
     name='reqtools',
     version=__version__,
     url='https://github.com/oztqa/reqtools',
-    packages=find_packages(include=('reqtools',)),
+    packages=find_packages(include=('reqtools',), exclude=('tests',)),
     description='Extension for requests library',
     long_description=__description__,
     include_package_data=True,
