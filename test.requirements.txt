@@ -1,3 +1,8 @@
 requests
 pytest==3.6.0
 pyhamcrest==1.9.0
+
+git+https://gitlab.com/pycqa/flake8#egg=flake8
+flake8-quotes
+flake8-builtins
+flake8-import-order

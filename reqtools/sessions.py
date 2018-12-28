@@ -65,7 +65,7 @@ class RemoteApiSession(Session):
             message = json.dumps(resp.json(), ensure_ascii=False, indent=4)
             logger.info('\n' + message)
         except ValueError:
-            logger.info("\n" + resp.text)
+            logger.info('\n' + resp.text)
 
         headers = json.dumps({k: v for k, v in resp.headers.items()})
         logger.info(f'Headers: {headers}')

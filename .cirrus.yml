@@ -4,8 +4,8 @@ container:
 pep8_task:
   timeout_in: 5m
   script:
-    - pip install git+https://gitlab.com/pycqa/flake8#egg=flake8
-    - flake8 --ignore="E501" ./
+    - pip install -r test.requirements.txt -U
+    - flake8 --config ./flake8.ini
 
 test_task:
   timeout_in: 5m
