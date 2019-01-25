@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class RemoteApiSession(Session):
+    __attrs__ = Session.__attrs__ + ['_base_url', '_prefix']
 
     def __init__(self, base_url: str, *, prefix: str = None):
         super(RemoteApiSession, self).__init__()

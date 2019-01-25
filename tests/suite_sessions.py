@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import pickle
 
 import pytest
 from requests import Session as RequestsSession
@@ -63,3 +64,14 @@ def test_remote_api_build_url():
 def test_remote_api_build_url_with_prefix(prefix, url_path, expected):
     session = RemoteApiSession('http://test.ru', prefix=prefix)
     assert_that(session._build_url(url_path), is_(equal_to(expected)))
+
+
+def test_serializable():
+    base_url = 'http://test.ru'
+    prefix = '/prefix'
+    session_original = RemoteApiSession(base_url, prefix=prefix)
+    serialization = pickle.dumps(session_original)
+    del session_original
+    session_loaded = pickle.loads(serialization)
+    assert_that(session_loaded.base_url, is_(base_url))
+    assert_that(session_loaded.prefix, is_(prefix))
