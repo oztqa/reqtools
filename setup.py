@@ -35,6 +35,7 @@ setup(
     platforms='any',
     install_requires=[
         'requests',
+        'curlify'
     ],
     classifiers=(
         'Development Status :: 4 - Beta',

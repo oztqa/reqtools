@@ -6,6 +6,7 @@ import json
 import logging
 from urllib.parse import urljoin
 
+import curlify
 from requests import Session
 
 
@@ -60,6 +61,7 @@ class RemoteApiSession(Session):
                     logger.info(f'Request param "{k}": {message}')
 
         resp = super(RemoteApiSession, self).request(method, url, **kwargs)
+        logger.info(curlify.to_curl(resp.request))
         logger.info(f'Response status code is "{resp.status_code}"')
 
         try:
