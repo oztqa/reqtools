@@ -66,6 +66,24 @@ def test_remote_api_build_url_with_prefix(prefix, url_path, expected):
     assert_that(session._build_url(url_path), is_(equal_to(expected)))
 
 
+@pytest.mark.parametrize(
+    'base, prefix, url_path, expected',
+    [
+        ('http://localhost:5000/api', 'prefix', 'test/', 'http://localhost:5000/api/prefix/test/'),
+        ('http://localhost:5000/api', 'prefix/', 'test', 'http://localhost:5000/api/prefix/test'),
+        ('http://localhost:5000/api', '/prefix', 'test/', 'http://localhost:5000/api/prefix/test/'),
+        ('http://localhost:5000/api', '/prefix/', 'test', 'http://localhost:5000/api/prefix/test'),
+        ('http://localhost:5000/api/', 'prefix', 'test/', 'http://localhost:5000/api/prefix/test/'),
+        ('http://localhost:5000/api/', 'prefix/', 'test', 'http://localhost:5000/api/prefix/test'),
+        ('http://localhost:5000/api/', '/prefix', 'test/', 'http://localhost:5000/api/prefix/test/'),
+        ('http://localhost:5000/api/', '/prefix/', 'test', 'http://localhost:5000/api/prefix/test'),
+    ],
+)
+def test_remote_api_build_url_with_prefix_and_nonorigin_base(base, prefix, url_path, expected):
+    session = RemoteApiSession(base, prefix=prefix)
+    assert_that(session._build_url(url_path), is_(equal_to(expected)))
+
+
 def test_serializable():
     base_url = 'http://test.ru'
     prefix = '/prefix'
