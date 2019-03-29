@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
-import re
 import json
 import logging
-from urllib.parse import urljoin
 
 import curlify
 from requests import Session
@@ -36,19 +33,16 @@ class RemoteApiSession(Session):
     @property
     def url(self):
         if self.prefix:
-            return urljoin(self._base_url, self._prefix)
-
+            return self._glue_parts(self._base_url, self._prefix)
         return self._base_url
 
     def _build_url(self, url_path: str):
         if self._prefix:
-            slash_in_the_end = url_path.endswith('/')
-            url_path = os.path.join(self._prefix, re.sub('^/|/$', '', url_path))
+            url_path = self._glue_parts(self._prefix, url_path)
+        return self._glue_parts(self._base_url, url_path)
 
-            if slash_in_the_end:
-                url_path += '/'
-
-        return urljoin(self._base_url, url_path)
+    def _glue_parts(self, part1, part2: str):
+        return part1.rstrip('/') + '/' + part2.lstrip('/')
 
     def request(self, method: str, url_path: str, **kwargs):
         url = self._build_url(url_path)
