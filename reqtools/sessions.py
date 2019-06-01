@@ -14,7 +14,7 @@ class RemoteApiSession(Session):
     __attrs__ = Session.__attrs__ + ['_base_url', '_prefix']
 
     def __init__(self, base_url: str, *, prefix: str = None):
-        super(RemoteApiSession, self).__init__()
+        super().__init__()
 
         self._base_url = base_url
         self._prefix = prefix
@@ -32,42 +32,38 @@ class RemoteApiSession(Session):
 
     @property
     def url(self):
-        if self.prefix:
-            return self._glue_parts(self._base_url, self._prefix)
-        return self._base_url
-
-    def _build_url(self, url_path: str):
-        if self._prefix:
-            url_path = self._glue_parts(self._prefix, url_path)
-        return self._glue_parts(self._base_url, url_path)
-
-    def _glue_parts(self, part1, part2: str):
-        return part1.rstrip('/') + '/' + part2.lstrip('/')
+        return self._build_url(self._base_url, self._prefix)
 
     def request(self, method: str, url_path: str, **kwargs):
-        url = self._build_url(url_path)
-        logger.info(f'Performing "{method}" request to "{url}"')
 
-        if kwargs:
-            for k, v in kwargs.items():
-                if v is not None:
-                    message = json.dumps(v, ensure_ascii=False, indent=4)
-                    logger.info(f'Request param "{k}": {message}')
+        url = self._build_url(self.url, url_path)
 
-        resp = super(RemoteApiSession, self).request(method, url, **kwargs)
-        logger.info(curlify.to_curl(resp.request))
-        logger.info(f'Response status code is "{resp.status_code}"')
+        logger.info(
+            f'Performing "{method}" request to "{url}"'
+            f'\nRequest params: {self._serialize(kwargs)}')
+
+        resp = super().request(method, url, **kwargs)
 
         try:
-            message = json.dumps(resp.json(), ensure_ascii=False, indent=4)
-            logger.info('\n' + message)
+            resp_content = self._serialize(resp.json())
         except ValueError:
-            logger.info('\n' + resp.text)
+            resp_content = resp.text
 
-        headers = json.dumps({k: v for k, v in resp.headers.items()})
-        logger.info(f'Headers: {headers}')
-
-        total_seconds = resp.elapsed.total_seconds()
-        logger.info(f'Response time is "{total_seconds}" seconds')
+        logger.info(
+            f'{curlify.to_curl(resp.request)}'
+            f'\nResponse status code is "{resp.status_code}"'
+            f'\n{resp_content}'
+            f'\nHeaders: {self._serialize(dict(resp.headers))}'
+            f'\nResponse time is "{resp.elapsed.total_seconds()}" seconds')
 
         return resp
+
+    @staticmethod
+    def _build_url(base, path: str):
+        return base.rstrip('/') + '/' + path.lstrip('/') if path else base
+
+    @staticmethod
+    def _serialize(obj):
+        return json.dumps(
+            obj, ensure_ascii=False, indent=4,
+            default=lambda o: repr(o))
