@@ -13,11 +13,14 @@ logger = logging.getLogger(__name__)
 class RemoteApiSession(Session):
     __attrs__ = Session.__attrs__ + ['_base_url', '_prefix']
 
-    def __init__(self, base_url: str, *, prefix: str = None):
+    def __init__(self, base_url: str, *, prefix: str = None, request_timeout: int = None):
         super().__init__()
 
         self._base_url = base_url
         self._prefix = prefix
+        self._reqest_timeout = 5
+        if request_timeout:
+            self._reqest_timeout = request_timeout
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.url})'
@@ -42,7 +45,8 @@ class RemoteApiSession(Session):
             f'Performing "{method}" request to "{url}"'
             f'\nRequest params: {self._serialize(kwargs)}')
 
-        resp = super().request(method, url, **kwargs)
+        resp = super().request(method, url, 
+                               timeout=self._reqest_timeout, **kwargs)
 
         try:
             resp_content = self._serialize(resp.json())
