@@ -45,8 +45,7 @@ class RemoteApiSession(Session):
             f'Performing "{method}" request to "{url}"'
             f'\nRequest params: {self._serialize(kwargs)}')
 
-        resp = super().request(method, url, 
-                               timeout=self._reqest_timeout, **kwargs)
+        resp = super().request(method, url, timeout=self._reqest_timeout, **kwargs)
 
         try:
             resp_content = self._serialize(resp.json())
