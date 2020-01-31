@@ -38,6 +38,7 @@ class RemoteApiSession(Session):
         return self._build_url(self._base_url, self._prefix)
 
     def request(self, method: str, url_path: str, **kwargs):
+        kwargs.setdefault('timeout', self._reqest_timeout)
 
         url = self._build_url(self.url, url_path)
 
@@ -45,7 +46,7 @@ class RemoteApiSession(Session):
             f'Performing "{method}" request to "{url}"'
             f'\nRequest params: {self._serialize(kwargs)}')
 
-        resp = super().request(method, url, timeout=self._reqest_timeout, **kwargs)
+        resp = super().request(method, url, **kwargs)
 
         try:
             resp_content = self._serialize(resp.json())
