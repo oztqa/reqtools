@@ -18,8 +18,7 @@ class RemoteApiSession(Session):
 
         self._base_url = base_url
         self._prefix = prefix
-        if request_timeout:
-            self._request_timeout = request_timeout
+        self._request_timeout = request_timeout
 
     def __repr__(self):
         return f'{self.__class__.__name__}({self.url})'
